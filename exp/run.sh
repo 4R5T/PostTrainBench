@@ -44,6 +44,9 @@ run_claude() {
 
   export BASH_MAX_TIMEOUT_MS="36000000"
 
+  mkdir -p "$SCRIPT_DIR/claude"
+  cd "$SCRIPT_DIR/claude"
+
   claude --print --verbose \
     --model "$CLAUDE_MODEL" \
     --output-format stream-json \
@@ -61,6 +64,9 @@ run_codex() {
   unset ANTHROPIC_API_KEY
   unset OPENAI_API_KEY
   unset GEMINI_API_KEY
+
+  mkdir -p "$SCRIPT_DIR/codex"
+  cd "$SCRIPT_DIR/codex"
 
   codex --search exec \
     --json \
