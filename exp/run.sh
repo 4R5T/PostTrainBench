@@ -30,13 +30,12 @@ CLAUDE_MODEL="${CLAUDE_MODEL:-claude-sonnet-4-6}"
 CODEX_MODEL="${CODEX_MODEL:-gpt-5.3-codex}"
 
 TARGET="${1:-both}"
+TS="$(date +%m%d_%H%M)"
 
 run_claude() {
   echo "========================================"
   echo "Running Claude Code (model: $CLAUDE_MODEL)"
   echo "========================================"
-
-  # Using subscription login — no API key check needed
 
   unset ANTHROPIC_API_KEY
   unset OPENAI_API_KEY
@@ -44,8 +43,17 @@ run_claude() {
 
   export BASH_MAX_TIMEOUT_MS="36000000"
 
-  mkdir -p "$SCRIPT_DIR/claude"
-  cd "$SCRIPT_DIR/claude"
+  # Create an isolated sandbox so Claude cannot see sibling experiment folders.
+  # Structure: exp/claude/runs/<timestamp>/  (empty dir, symlinks only)
+  local SANDBOX="$SCRIPT_DIR/claude/runs/${TS}"
+  mkdir -p "$SANDBOX"
+
+  # Symlink .claude/ (hooks + settings) and mcp_paper_search/ into the sandbox.
+  # Do NOT symlink the claude/ output dir — keeps sibling experiments invisible.
+  ln -sfn "$SCRIPT_DIR/.claude"            "$SANDBOX/.claude"
+  ln -sfn "$SCRIPT_DIR/mcp_paper_search"   "$SANDBOX/mcp_paper_search"
+
+  cd "$SANDBOX"
 
   claude --print --verbose \
     --model "$CLAUDE_MODEL" \

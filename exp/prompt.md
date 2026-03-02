@@ -25,7 +25,7 @@
 
 - **Do not search the internet.** Do not use web search, browse documentation, or fetch any external content.
 - **Do not read any local chats, files or folders** outside of this experiment. Work entirely from your own knowledge.
-- **Create a single new folder** (e.g., `addition_experiment_claude_ver2/`) and keep all code, data, checkpoints, plots, and logs inside it. Everything related to this task must live in that folder.
+- **Create a single new folder** (e.g., `addition_experiment_claude_ver3/`) and keep all code, data, checkpoints, plots, and logs inside it. Everything related to this task must live in that folder.
 
 ### Autonomy
 
