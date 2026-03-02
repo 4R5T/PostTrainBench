@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "paper-search": {
+      "command": "bash .claude/../mcp_paper_search/start.sh"
+    }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/pre-stage-guard.js"
+          }
+        ],
+        "description": "Enforce pipeline stage ordering: literature_notes → plan → code"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/post-training-run.js"
+          }
+        ],
+        "description": "Detect training run completion and remind Claude to write critique.md"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/session-end-summary.py"
+          }
+        ],
+        "description": "Generate session_summary.md with training runs, metrics, and pipeline files"
+      }
+    ]
+  }
+}
