@@ -30,7 +30,7 @@ CLAUDE_MODEL="${CLAUDE_MODEL:-claude-sonnet-4-6}"
 CODEX_MODEL="${CODEX_MODEL:-gpt-5.3-codex}"
 
 TARGET="${1:-both}"
-TS="$(date +%m%d_%H%M)"
+TS="$(date +%m%d_%H%M%S)"
 
 run_claude() {
   echo "========================================"
@@ -44,14 +44,18 @@ run_claude() {
   export BASH_MAX_TIMEOUT_MS="36000000"
 
   # Create an isolated sandbox so Claude cannot see sibling experiment folders.
-  # Structure: exp/claude/runs/<timestamp>/  (empty dir, symlinks only)
+  # Structure: exp/claude/runs/<timestamp>/  (empty dir, symlinks to shared config only)
   local SANDBOX="$SCRIPT_DIR/claude/runs/${TS}"
   mkdir -p "$SANDBOX"
 
-  # Symlink .claude/ (hooks + settings) and mcp_paper_search/ into the sandbox.
-  # Do NOT symlink the claude/ output dir — keeps sibling experiments invisible.
-  ln -sfn "$SCRIPT_DIR/.claude"            "$SANDBOX/.claude"
-  ln -sfn "$SCRIPT_DIR/mcp_paper_search"   "$SANDBOX/mcp_paper_search"
+  # Symlink only the config files Claude needs — NOT the parent exp/ directory.
+  # This prevents Claude from walking up symlinks and discovering sibling runs.
+  mkdir -p "$SANDBOX/.claude/hooks"
+  ln -sfn "$SCRIPT_DIR/.claude/settings.json"              "$SANDBOX/.claude/settings.json"
+  ln -sfn "$SCRIPT_DIR/.claude/hooks/pre-stage-guard.js"   "$SANDBOX/.claude/hooks/pre-stage-guard.js"
+  ln -sfn "$SCRIPT_DIR/.claude/hooks/post-training-run.js" "$SANDBOX/.claude/hooks/post-training-run.js"
+  ln -sfn "$SCRIPT_DIR/.claude/hooks/session-end-summary.py" "$SANDBOX/.claude/hooks/session-end-summary.py"
+  ln -sfn "$SCRIPT_DIR/mcp_paper_search"                   "$SANDBOX/mcp_paper_search"
 
   cd "$SANDBOX"
 
